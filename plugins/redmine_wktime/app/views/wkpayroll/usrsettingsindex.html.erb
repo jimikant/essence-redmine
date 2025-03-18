@@ -1,0 +1,9 @@
+<%= title l(:label_payroll_user_settings) %>
+<div class="contextual">
+	<%= render :partial => 'sidebar' %>
+</div>
+<%= render partial: "wkattendance/render_hr_tabs" %>
+
+<%= render :partial => 'wkpayroll/user_setting_list'%>
+<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
+<%=h hidden_field_tag('tab', "#{controller_name}") %>

@@ -1,0 +1,40 @@
+<h2><%= 'Company' %></h2>
+<%= form_tag(portfolio_projects_path, :method => :get) do %>
+  <fieldset>
+    <legend><%= l(:label_filter_plural) %></legend>
+    <label for='status'><%= l(:field_status) %>:</label>
+    <%= select_tag 'status', portfolio_project_status_select(@portfolio_status), :class => "small", :onchange => "this.form.submit(); return false;" %>
+    <label for='name'><%= l(:label_project) %>:</label>
+    <%= text_field_tag 'name', params[:name], :size => 30 %>
+    <%= submit_tag l(:button_apply), :class => "small", :name => nil %>
+    <%= link_to l(:button_clear), portfolios_path, :class => 'icon icon-reload' %>
+  </fieldset>
+<% end %>
+&nbsp;
+
+<% if @projects.any? %>
+  <div class="autoscroll">
+    <table class="list">
+      <thead>
+      <tr>
+        <th><%= l(:label_project) %></th>
+        <th></th>
+      </tr>
+      </thead>
+      <tbody>
+      <% project_tree(@projects, :init_level => true) do |project, level| %>
+        <tr class="<%= project.css_classes %> <%= level > 0 ? "idnt idnt-#{level}" : nil %>">
+          <td class="name">
+            <span><%= link_to_project_settings(project, {}, :title => project.short_description) %></span></td>
+          <td><%= format_date(project.created_on) %></td>
+          <td class="buttons">
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+  <span class="pagination"><%= pagination_links_full @project_pages, @project_count %></span>
+<% else %>
+  <p class="nodata"><%= l(:label_no_data) %></p>
+<% end %>

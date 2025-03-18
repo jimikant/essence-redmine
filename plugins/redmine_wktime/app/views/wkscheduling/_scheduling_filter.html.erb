@@ -1,0 +1,35 @@
+<%  shiftArr = WkShift.where(:in_active => true, :is_schedulable => true).order(:name).pluck(:name, :id)
+	shiftArr.unshift(["",''])
+%>
+<%= hidden_field_tag "searchlist", controller_name %>
+<%
+	shiftId = session[controller_name].try(:[], :shift_id)
+	depId = session[controller_name].try(:[], :department_id)
+	locationId = session[controller_name].try(:[], :location_id)
+	dayOff = session[controller_name].try(:[], :day_off)
+	dateVal = params[:date]
+%>
+<% scheduleasHash = {'' => "", 'W' => l(:label_work), 'O' => l(:label_day_off)} %>
+<label><%= l(:field_location) %></label>&nbsp;
+<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', locationId, true), :disabled => false, :style => "width:120px;") %>&nbsp;
+
+<label> <%= l(:field_department) %></label>&nbsp;
+<%=h select_tag('department_id', options_for_select(options_for_enum_select('DP', depId, true)), :style => "width:120px;") %>&nbsp;
+
+<label><%= l(:label_user) %></label>&nbsp;
+<%= text_field_tag 'name', params[:name], :size => 30 %>&nbsp;
+
+<label><%= l(:field_shift) %></label>&nbsp;
+<%=h select_tag('shift_id', options_for_select(shiftArr, :selected => shiftId.blank? ? shiftArr : shiftId), :style => "width:120px;") %>&nbsp;<br><br>
+
+<label><%= l(:label_day_off) %></label>&nbsp;
+<%=h select_tag('day_off', options_for_select(scheduleasHash.invert, :selected => dayOff), :style => "width:120px;") %>&nbsp;
+
+<% if isApply %>
+	<label><%= l(:field_spent_on) %></label>&nbsp;
+	<%= date_field_tag('date', dateVal.blank? ? Date.today.to_s : dateVal,:size => 15, :required => true, :maxlength => 15) %><%= calendar_for('date') %>&nbsp;
+	<p>
+		<%= submit_tag l(:button_apply), :class => "small", :name => nil %>&nbsp;
+		<%= link_to_function sprite_icon('reload', l(:button_clear)), '$("#schedule_form").submit(); return false;', class: 'icon icon-reload' %>
+	</p>
+<% end %>

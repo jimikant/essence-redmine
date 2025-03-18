@@ -1,0 +1,60 @@
+<div class="autoscroll">
+	<table class="list time-entries">
+		<thead>
+			<tr>
+			<%= sort_header_tag('name', :caption => l(:field_user), class: "lbl-txt-align") %>
+			<%
+ 				wktime_helper = Object.new.extend(WktimeHelper)
+				header = ""
+				wktime_leave = getLeaveSettings
+				isAvailable = wktime_leave.present?
+				lastAccrualOn = Date.civil(Date.today.year, Date.today.month, 1) -1
+				if isAvailable
+					wktime_leave.each_with_index do |element,index|
+						if index < 5
+							listboxArr = element.split('|')
+							header += "<th class='lbl-num-align'>#{Issue.where(id: listboxArr[0]).first&.subject}</th>"
+						end
+					end
+				end
+			%>
+			<%= header.html_safe %>
+			<th></th>
+			</tr>
+		</thead>
+		<tbody>
+		<% @leave_entries.each do |entry| -%>
+			<tr class="time-entry <%= cycle("odd", "even") %> <%= entry.status == 3 ? "user locked" : "" %>" >
+				<td class="lbl-txt-align"><%=h entry.user&.name %></td>
+				<% if isAvailable
+					wktime_leave.each_with_index do |element,index|
+						if index < 5
+							listboxArr = element.split('|')
+				%>
+						<td class="lbl-num-align"><%=h entry['total'+index.to_s].round(2) unless entry['total'+index.to_s].blank? %></td>
+				<%
+						end
+					end
+				end %>
+				<td align="center">
+					<%= link_to sprite_icon('edit'), {:controller => controller.controller_name, :action => 'edit', :user_id => entry.user_id,
+						:accrual_on => lastAccrualOn, :tab => controller.controller_name},
+																							:title => l(:button_edit) %>
+				</td>
+			</tr>
+		<% end -%>
+		</tbody>
+	</table>
+</div>
+
+<div id="myDialog" title="<%= l(:label_title_end_process) %>">
+	<%= content_tag(:p, l(:label_period_end_confirmation)) %>
+	<%= content_tag(:p, l(:label_chose_process_date)) do %>
+		<%= date_field_tag('start_date', "", {:id => 'start_date', :size => 12, :style => "width:130px; "}) + calendar_for('start_date') %>
+
+		<% end %>
+	<%= content_tag(:p, l(:label_period_end_note)) %>
+</div>
+
+<%= content_tag :div, class: "label_select_date_text", data: {select: l(:label_select_date_text)} do%>
+<% end %>

@@ -1,0 +1,39 @@
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<fieldset id="date-range" class="collapsible">
+<legend onclick="toggleFieldset(this);" class="icon icon-expanded"><%= sprite_icon("angle-down") %><%= l(:label_date_range) %></legend>
+<div>
+<% period = session[controller_name].try(:[], :period) %>
+<div class="div-left">
+<%= radio_button_tag 'period_type', '1', !@free_period, :onclick => '$("#from,#to").attr("disabled", true);$("#period").removeAttr("disabled");' %>
+<%= select_tag 'period', options_for_period_select(period),
+                         :onchange => 'this.form.submit();',
+                         :onfocus => '$("period_type_1").checked = true;',
+                         :disabled => @free_period %>
+</div>
+<div class="div-right">
+<%= radio_button_tag 'period_type', '2', @free_period, :onclick => '$("#from,#to").removeAttr("disabled");$("#period").attr("disabled", true);' %>
+<span onclick="$('period_type_2').checked = true;">
+<%= l(:label_date_from_to, :start => ( date_field_tag('from', @from, {:id => 'from', :size => 10, :disabled => !@free_period}) +
+          calendar_for('from')), :end => ( date_field_tag('to', @to, {:id => 'to', :size => 10, :disabled => !@free_period}) +
+          calendar_for('to'))).html_safe %>
+</span>
+</div>
+<div style="clear:both"></div>
+<%=h hidden_field_tag('generate', '') %>
+<% if action_name =='reportdetail' || action_name =='report' %>
+<%=h hidden_field_tag('control', "#{action_name}") %>
+<% end %>
+</div>
+</fieldset>
+
+<p class="buttons">
+	<%= link_to_function sprite_icon('checked', l(:button_apply)), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
+	<%= link_to sprite_icon('reload', l(:button_clear)), {tab: 'payroll', clear: true}, class: 'icon icon-reload' %>
+  <% if validateERPPermission('A_PAYRL') %>
+  <%= link_to sprite_icon('document', l(:label_generate_salary)), 'javascript:payrollFormSubmission(true);', :name => 'generate', :class => 'icon' %>
+  <%= link_to sprite_icon('document', l(:label_preview_salary)), 'javascript:payrollFormSubmission(false);', :class => 'icon' %>
+  <% end %>
+</p>
+
+<%= content_tag :div, class: "label_confirmation_salary_text", data: {confirmation: l(:label_confirmation_salary_text)} do %>
+<% end %>

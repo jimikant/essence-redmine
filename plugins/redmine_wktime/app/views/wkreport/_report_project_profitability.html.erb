@@ -1,0 +1,107 @@
+<%
+	require_relative './report_project_profitability'
+	userId = session[controller_name].try(:[], :user_id).blank? ? 0 : session[controller_name].try(:[], :user_id)
+	groupId = session[controller_name].try(:[], :group_id).blank? ? 0 : session[controller_name].try(:[], :group_id)
+	projectId = session[controller_name].try(:[], :project_id).blank? ? 0 : session[controller_name].try(:[], :project_id)
+	from = session[controller_name].try(:[], :from)
+	to = session[controller_name].try(:[], :to)
+
+	helperObj = Object.new.extend(ReportProjectProfitability)
+	projectProf = helperObj.calcReportData(userId, groupId, projectId, from, to)
+  columnCount = projectProf[:periods].length
+  entry = projectProf[:totlProfitAvg]
+%>
+
+<div id="attn-rpt-dlg", style="overflow-x:auto;">
+	<div style="float:left; width:90%;">
+		<p style="text-align: center;">
+			<caption style="text-align:center"><b>
+				<%= getMainLocation %><br><%= l(:report_project_profitability) %></b></br>
+				<%= projectProf[:from] + " " + l(:label_date_to) + " " + projectProf[:to]%>
+			</caption>
+		</p>
+	</div>
+	<div style="float:right">
+		<table>
+			<tr>
+				<td>
+					<% attachment = WkLocation.getMainLogo() %>
+					<% if attachment.present? %>
+						<%= image_tag(download_location_attachment_path(attachment, attachment.filename), class: 'filecontent image') %>
+					<% end %>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<table style="width:100%;">
+		<thead style="background-color:#e6e6e6;">
+			<tr style="border-bottom: solid thin;border-top: solid thin;">
+				<th style="text-align:center;" ><%= l(:label_project) %></th>
+				<% projectProf[:periods].each do |monthVal| %>
+					<th style="text-align:center;"><%= monthVal[0]%><br/><%= I18n.t("date.abbr_month_names")[monthVal[1]]%></th>
+				<% end %>
+				<th style="text-align:center;" ><%= l(:label_total) %></th>
+			</tr>
+		</thead>
+
+		<tbody>
+			<% projectProf[:billProj].each do |project| %>
+				<% row_key = project.project_id.to_s %>
+				<tr style="width:100%;">
+					<td></td>
+					<td colspan="<%= columnCount+2%>" style="border-bottom: solid thin;"></td>
+				</tr>
+				<tr style="width:100%;">
+					<td style="text-align:left;" >
+						<ul style="list-style-type:none;">
+							<li style="text-align:left;"><b><%= project.name%></b></li>
+							<li style="text-align:right;"><%=h l(:label_revenue) %></li>
+							<li style="text-align:right;"><%=h l(:label_wkexpense) %></li>
+							<li style="text-align:right;"><%=h l(:label_profit) %></li>
+						</ul>
+					</td>
+					<% projectProf[:periods].each do |monthVal| %>
+						<%  key = monthVal.last.to_i.to_s + "_" + (monthVal.first).to_s + "_" + project.project_id.to_s  
+								data = entry[:detail_entries][key]
+						%>
+						<td><ul style="list-style-type:none;">
+							<br>
+							<li style="text-align:center;"><%= projectProf[:currency] %>&nbsp;<%= data[:revenue] %></li>
+							<li style="text-align:center;"><%= projectProf[:currency] %>&nbsp;<%= data[:expense] %></li>
+							<li style="text-align:center;"><%= projectProf[:currency] %>&nbsp;<%= data[:profit] %>&nbsp;<%= "(" + data[:profit_percentage].to_s + "%)" %></li>
+						</ul></td>
+					<% end %>
+					<td><ul style="list-style-type:none;">
+						<br>
+						<li style="text-align:center;"><b><%= projectProf[:currency] %>&nbsp;<%= projectProf[:rowTotal][row_key][:income] %></li>
+						<li style="text-align:center;"><b><%= projectProf[:currency] %>&nbsp;<%= projectProf[:rowTotal][row_key][:expense] %></li>
+						<li style="text-align:center;"><b><%= projectProf[:currency] %>&nbsp;<%= entry[:ProjProfit][row_key] %>&nbsp;<%= "(" + entry[:ProjPercentage][row_key].to_s + "%)" %></li>
+					</ul></td>
+				</tr>
+			<% end %>
+
+			<tr style="width:100%;">
+				<td></td>
+				<td colspan="<%= columnCount+2%>" style="border-bottom: solid medium;"></td>
+			</tr>
+			<tr style="width:100%;">
+				<td style="text-align:left;">
+					<ul style="list-style-type:none;">
+					<li style="text-align:center;"><b><%=h l(:label_total) %></b></li>
+					<li style="text-align:right;"><b><%=h l(:label_profit) %></b></li>
+				</ul></td>
+				<% projectProf[:periods].each do |monthVal| %>
+					<%  col_key = monthVal.last.to_i.to_s + "_" + (monthVal.first).to_s %>
+					<td><ul style="list-style-type:none;">
+						<br>
+						<li style="text-align:center;"><b><%= projectProf[:currency] %>&nbsp;<%= entry[:mnthProfit][col_key] %>&nbsp;<%= "(" + entry[:mnthPercentage][col_key].to_s + "%)" %></b></li>
+					</ul></td>
+				<% end %>
+				<td><ul style="list-style-type:none;">
+					<br>
+					<li style="text-align:center;"><b><%= projectProf[:currency] %>&nbsp;<%=entry[:ovrAllProf] %>&nbsp;<%= "(" + entry[:ovrAllAvg].to_s + "%)" %></b></li>
+				</ul></td>
+        	</tr>
+		</tbody>
+	</table>
+</div>

@@ -1,0 +1,6 @@
+export TRAVISDIR=`pwd`
+export PATH_TO_PLUGIN=`dirname ${TRAVISDIR}`
+export TESTSPACE_NAME=testspace
+export TESTSPACE=$PATH_TO_PLUGIN/$TESTSPACE_NAME
+export PATH_TO_REDMINE=$TESTSPACE/redmine
+export RAILS_ENV=test

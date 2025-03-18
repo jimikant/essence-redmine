@@ -1,0 +1,81 @@
+<script type="text/javascript">
+lblcreditLedger = "<%= l(:label_credit_with_ledger) %>";
+lbldebitLedger = "<%= l(:label_debit_with_ledger) %>";
+</script>
+<% @ledgers = ["", ""] %> 
+<% @ledgers << WkLedger.order(:name).pluck(:name, :id) %> 
+<%  ledgerhash = Hash[*@ledgers.flatten].invert %>
+<% hash_pay_period = { 'm'  => l(:label_monthly), 'bw' =>  l(:label_bi_weekly), 'w' => l(:label_weekly) } %>
+<%
+	deplist = Array.new
+	sal_com_hash = Hash.new
+	dep_list = WkSalaryComponents.order('name')
+	deplist << [ "", '' ] if dep_list.count > 0
+	unless dep_list.blank?
+		dep_list.each do |list|  
+			deplist << [ list.name , list.id ]
+			sal_com_hash = Hash[dep_list.map { |u| [u.id, u.name] }]
+		end
+	end	
+%>
+<fieldset>
+<legend><%= l(:label_payroll) %></legend>
+	
+	<p>
+			<%= check_box_tag('settings[wktime_auto_generate_salary]', 1, @settings['wktime_auto_generate_salary'].to_i == 1) %> <label><%= l(:label_auto_generate_salary) %></label>
+	</p>
+	
+	<p><label><%= l(:label_pay_period) %></label>
+	    <%= select_tag 'settings[wktime_pay_period]', options_for_select(hash_pay_period.invert, :selected => @settings['wktime_pay_period']) %></p>
+	<p>	
+			<label><%= l(:label_pay_day) %></label>
+			<%= select_tag('settings[wktime_pay_day]', options_for_select([[l('date.day_names')[0], 0],
+										   [l('date.day_names')[1], 1],
+										   [l('date.day_names')[2], 2],
+										   [l('date.day_names')[3], 3],
+										   [l('date.day_names')[4], 4],
+										   [l('date.day_names')[5], 5],
+										   [l('date.day_names')[6], 6]], :selected => @settings['wktime_pay_day']))%>
+	</p>    
+	 <%
+ 		wktime_helper = Object.new.extend(WktimeHelper)
+		issueIdArr =Array.new
+	    if(wktime_helper.getLeaveSettings.blank?)
+			leaveIssueslist = []
+		else
+			wktime_helper.getLeaveSettings.each do |element|
+			   listboxArr = element.split('|')
+			   issueIdArr << listboxArr[0]
+			end
+			issueIds = issueIdArr.join(',')
+		    leaveIssues = Issue.select(:id, :subject).where("id in (#{issueIds})")
+			leaveIssueslist = leaveIssues.collect {|issue| [issue.subject, issue.id]}
+		end
+		leaveIssueslist.unshift(["",0]) 
+	%>
+	
+    <p><label><%= l(:label_loss_of_pay) %></label>
+	 <%= select_tag 'settings[wktime_loss_of_pay]', options_for_select(leaveIssueslist, :selected =>  @settings['wktime_loss_of_pay']) %></p>
+	
+	<p>
+		<%= check_box_tag('settings[salary_auto_post_gl]', 1, @settings['salary_auto_post_gl'].to_i == 1) %> <label><%= l(:label_auto_post_gl) %></label>
+	</p>
+	
+	<p><label><%= l(:label_credit_with_ledger)  %></label>
+	    <%= select_tag 'settings[wktime_cr_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['wktime_cr_ledger']) %></p>
+
+	<%
+		projects = Project.active.order('name')
+		wktime_helper = Object.new.extend(WktimeHelper)
+		projArr = wktime_helper.options_for_wktime_project(projects,true)	
+	%>
+	<p>
+		<label><%=l(:label_reimbursement_projects)%></label>
+		<%= select_tag('settings[reimburse_projects]', options_for_select(projArr, :selected => @settings['reimburse_projects'].blank? ? "" : @settings['reimburse_projects']), :multiple => true) %>
+	</p>
+
+	<p>
+		<%= check_box_tag('settings[approve_reimbursement]', 1, @settings['approve_reimbursement'].to_i == 1) %> <label><%= l(:label_approve_reimbursement) %></label>
+	</p>
+
+</fieldset>

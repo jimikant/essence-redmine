@@ -1,0 +1,1 @@
+gem "rufus-scheduler", "3.5.2"
