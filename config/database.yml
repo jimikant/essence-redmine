@@ -1,0 +1,21 @@
+default: &default
+  adapter: postgresql
+  host: localhost
+  encoding: utf8
+  variables:
+    transaction_isolation: "read committed"
+  username: <%= Rails.application.credentials[Rails.env.to_sym][:DB][:USER] %>
+  password: <%= Rails.application.credentials[Rails.env.to_sym][:DB][:PASSWORD] %>
+  database: <%= Rails.application.credentials[Rails.env.to_sym][:DB][:NAME] %>
+
+development:
+  <<: *default
+  database: redmine_development
+
+test:
+  <<: *default
+  database: redmine_test
+
+production:
+  <<: *default
+  database: redmine_production

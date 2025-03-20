@@ -1,0 +1,15 @@
+<div style="float: left;">
+<h2><%= l(:label_wktime) %></h2>
+</div>
+<div style="clear: both;"></div>
+<script type="text/javascript">
+   wktimeIndexUrl = '<%=url_for(:controller => "wktime", :tab => "wktime")%>';
+   wkexpIndexUrl = '<%=url_for(:controller => "wkexpense", :tab => "wkexpense")%>';
+</script>
+
+<% if showExpense %>
+<%= render_tabs time_expense_tabs %>
+<% end %>
+<%= render :partial => 'te_index' %>
+
+<% html_title(l(:label_ta)) -%>

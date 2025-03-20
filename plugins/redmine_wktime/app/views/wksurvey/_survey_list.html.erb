@@ -1,0 +1,59 @@
+<%
+helperObj = Object.new.extend(WksurveyHelper)
+
+unless controller_name == "wksurvey"
+    @all_surveys = helperObj.surveyList(params)
+end
+
+if params[:isIssue]
+    style = "list issues odd-even"
+else
+    style = "list time-entries"
+end
+%>
+<table class="<%= style %>">
+    <tr>
+        <th>#</th>
+        <% if ["index", "user_survey"].include? action_name %>
+            <%= sort_header_tag('survey', :caption => l(:label_survey), class: "lbl-txt-align") %>
+            <%= sort_header_tag('status', :caption => l(:field_status)) %>
+        <% else %>
+            <th class="lbl-txt-align"><%= l(:label_survey) %></th>
+            <th><%= l(:field_status) %></th>
+        <% end %>
+        <th></th>
+    </tr>
+    <% @all_surveys.each_with_index do |entry, index| %>
+        <% urlhash = { :survey_id => entry.id, :surveyForType => entry.survey_for_type, :surveyForID => entry.survey_for_id, id: entry.id} %>
+        <% surveyLink = helperObj.get_survey_with_userGroup(entry.id, false) %>
+        <tr>
+            <td><%=h index+1 %></td>
+            <td class="lbl-txt-align">
+                <% if surveyLink.blank? || (@surveyForID.blank? && !@surveyForType.blank?) %>
+                    <%=h entry.name %>
+                <% else %>
+                    <%=h link_to entry.name, url_for(helperObj.get_survey_url(urlhash, params, "survey")) %>
+                <% end %>
+            </td>
+            <td class="colorcode-bg-setup col-status-<%= entry.status %>"><%=h helperObj.getSurveyStatus.invert[entry.status] %></td>
+            <td class="lbl-txt-align">
+                <% if !entry.hide_response && (["O","C"].include? entry.status) %>
+                    <%= link_to sprite_icon('list'),
+                        url_for(helperObj.get_survey_url(urlhash, params, "survey_response")), :title => l(:label_survey_response) %>&emsp;
+                <% else %>&emsp;&emsp;&nbsp;
+                <% end %>
+                <% if (entry.status == "O" && helperObj.validateERPPermission("E_SUR")) || entry.status == "C" || helperObj.getResponseGroup(entry.id).present? %>
+                    <%= link_to sprite_icon('stats'), url_for(helperObj.get_survey_url(urlhash, params, "survey_result")),
+                        :title => l(:label_survey_result) %>&emsp;
+                <% else %>&emsp;&emsp;&nbsp;
+                <% end %>
+                <% if helperObj.checkEditSurveyPermission && params[:isIssue].blank? %>
+                    <%= link_to sprite_icon('edit'), url_for(helperObj.get_survey_url(urlhash, params, "edit")),
+                        :title => l(:button_edit) %>&emsp;
+                    <%= link_to sprite_icon('del'), url_for(helperObj.get_survey_url(urlhash, params, "destroy")),
+                        :data => {:confirm => l(:text_are_you_sure)}, method: "delete", :title => l(:button_delete) %>
+                <% end %>
+            </td>
+        </tr>
+    <% end %>
+</table>

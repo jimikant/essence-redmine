@@ -1,0 +1,7 @@
+<tr>
+  <td class="name">
+    <span><%= link_to_project_settings(portfolio_project, {}, :title => portfolio_project.short_description) %></span>
+  </td>
+  <td><%= checked_image portfolio_project.is_public? %></td>
+  <td><%= format_date(portfolio_project.created_on) %></td>
+</tr>

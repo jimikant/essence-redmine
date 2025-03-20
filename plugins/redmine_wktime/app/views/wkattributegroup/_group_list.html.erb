@@ -1,0 +1,29 @@
+<div class="autoscroll">
+<table class="list time-entries">
+  <thead>
+         <tr>
+				<th class="lbl-txt-align">#</th>
+				<%= sort_header_tag('name', :caption => l(:field_name), class: "lbl-txt-align") %>
+				<%= sort_header_tag('description', :caption => l(:field_description), class: "lbl-txt-align") %>
+				<th></th>
+         </tr>
+  </thead>
+  <tbody>
+     <% @groupEntries.each do |entry| %>
+          <tr>
+			  <td class="lbl-txt-align"><%=h entry.id %></td>
+			  <td class="lbl-txt-align"><%=h entry.name  %></td>
+			  <td class="lbl-txt-align"><%=h entry.description  %></td>
+			  <td align="center">
+                 <%= link_to sprite_icon('edit'), {:controller => controller.controller_name, :action => 'edit', :group_id => entry.id, id: entry.id}, :title => l(:button_edit) %>
+				 <% if controller.hasDeletePermission %>
+					<%= link_to sprite_icon('del'), {:controller => controller.controller_name, :action => 'destroy', :group_id => entry.id, id: entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
+				<% end %>
+			  </td>
+		 </tr>
+   	<% end %>
+  </tbody>
+</table>
+</div>
+<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
+

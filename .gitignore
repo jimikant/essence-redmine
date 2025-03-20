@@ -8,7 +8,7 @@
 /.byebug_history
 /config/additional_environment.rb
 /config/configuration.yml
-/config/database.yml
+# /config/database.yml
 /config/email.yml
 /config/secrets.yml
 /config/initializers/session_store.rb
@@ -23,7 +23,7 @@
 /lib/redmine/scm/adapters/mercurial/redminehelper.pyo
 /log/*.log*
 /log/mongrel_debug
-/plugins/*
+# /plugins/*
 !/plugins/README
 /public/assets/*
 /public/dispatch.*
@@ -46,3 +46,5 @@
 
 /node_modules
 yarn-error.log
+
+/config/master.key

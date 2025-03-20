@@ -1,0 +1,75 @@
+<%
+    require_relative './report_user_utilization'
+    fromDate = session[controller_name].try(:[], :from)
+    toDate = session[controller_name].try(:[], :to)
+    group_id = session[controller_name].try(:[], :group_id).blank? ? 0 : session[controller_name].try(:[], :group_id)
+    user_id = session[controller_name].try(:[], :user_id).blank? ? 0 : session[controller_name].try(:[], :user_id)
+	projId = session[controller_name].try(:[], :project_id)
+
+    helperObj = Object.new.extend(ReportUserUtilization)
+    userReport = helperObj.calcReportData(user_id, group_id, projId, fromDate, toDate)
+%>
+
+<%= stylesheet_link_tag 'application' , :media => "all" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<div style="float:right">
+	<table>
+        <tr>
+            <td>
+                <% attachment = WkLocation.getMainLogo() %>
+                <% if attachment.present? %>
+                    <%= image_tag(download_location_attachment_path(attachment, attachment.filename), class: 'filecontent image') %>
+                <% end %>
+            </td>
+        </tr>
+	</table>
+</div>
+<div style="clear:both;"></div>
+<div id="attn-rpt-dlg", style="overflow-x:auto;">
+    <table style="width:100%; border-collapse: collapse;"border="1";>
+        <caption style="text-align:center"><b><%= getMainLocation %><br><%= l(:report_user_utilization) + " " + l(:label_report) %></b></br>
+        <%= userReport[:from] + " " + l(:label_date_to) + " " + userReport[:to]%>
+        <thead style="background-color:#e6e6e6;">
+            <tr>
+                <th style="text-align: center;" width="10%"><%= l(:field_user) %></th>
+                    <% userReport[:periods].each do |monthVal| %>
+                        <th style="text-align:center;"><%= monthVal[0]%><br/><%= I18n.t("date.abbr_month_names")[monthVal[1]]%></th>
+                    <% end %>
+                    <th style="text-align: center;" width="10%"><%= l(:label_average) %></th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <% total_percentage = Hash.new %>
+            <% userReport[:users].each do |user| %>
+                <tr>
+                    <td class="lbl-txt-align"><%=h user.firstname %></td>
+                    <% key = user.id.to_s %>
+                    <% userReport[:data][key].each do |u_detail| %>
+                        <% total_hours = u_detail.last[:bill_hrs].to_f + u_detail.last[:non_bill_hrs].to_f %>
+                        <% percentage = (total_hours > 0) ? ((u_detail.last[:bill_hrs].to_f/total_hours)*100).round(2) : 0.to_f %>
+                        <% month_val = u_detail.first.to_s %>
+                        <% total_percentage[month_val] = (total_percentage[month_val].to_f + percentage) %>
+                        <% total_percentage[key] = (total_percentage[key].to_f + percentage) %>
+                        <td style="text-align:center;"><%= percentage.to_s + "%"  %></td>
+                    <% end %>
+                    <% @month_count = userReport[:periods].length %>
+                    <td style="text-align:center;"><%= (total_percentage[key]/@month_count).round(2).to_s + "%"  %></td>
+                </tr>
+            <% end %>
+            <tr>
+                <th class="lbl-txt-align"><%= l(:label_average) %></th>
+                <% @overall_avg = 0 %>
+                <% userReport[:periods].each do |monthVal| %>
+                    <% user_count = userReport[:users].length%>
+                    <% month_year = (monthVal.first).to_s + ","  + (monthVal.last).to_s %>
+                    <% avg = (user_count > 0) ? (total_percentage[month_year].to_f/user_count.to_f).round(2) : 0  %>
+                    <td style="text-align:center;"><%= avg.to_s + "%" %></td>
+                    <% @overall_avg += avg.to_f %>
+                <% end %>
+                <% total_avg = @month_count.blank? ? 0 : (@overall_avg/@month_count.to_f).round(2)%>
+                <td style="text-align:center;"><%= total_avg.to_s + "%" %></td>
+            </tr>
+         </tbody>
+    </table>
+</div>

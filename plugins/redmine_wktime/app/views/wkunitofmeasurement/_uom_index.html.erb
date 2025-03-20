@@ -1,0 +1,97 @@
+<%= form_tag({:controller => "wkunitofmeasurement", :action => 'update'}, :method => :get, :id => 'query_form') do %>
+<% actualIds = "" %>
+<table class="list" id="commit-keywords">
+  <thead>
+    <tr>
+		<th></th>
+		<th><%= l(:field_name) %></th>
+		<th><%= l(:label_wk_leave_short_name) %></th>
+		<th class="buttons"></th>
+    </tr>
+  </thead>
+  <tbody>
+	<% unless @curentry.blank? %>
+		<% @curentry.each do |entry| %>
+			<tr class="commit-keywords">
+				<td>
+					<%= hidden_field_tag "uom_id[]",  entry.id  %>
+					<% actualIds = actualIds.blank? ? entry.id.to_s  : (actualIds + "," + entry.id.to_s) %>
+				</td>
+			    <td>
+					<%= text_field_tag("name[]",  entry.name  , :style => "width:150px;", :maxlength => 255, :required => true)  %>
+			    </td>
+			    <td>
+					<%= text_field_tag("description[]",  entry.short_desc, :style => "width:150px;", :maxlength => 255, :required => true) %>
+				</td>
+
+				<td class="buttons">
+					<% if controller.hasDeletePermission %>
+						<%= link_to(sprite_icon('del', l(:button_delete)), '#',
+							:class => 'delete-commit-keywords icon-only icon-del',
+							:title => l(:button_delete)) %>
+					<% end %>
+				</td>
+			</tr>
+		<% end %>
+	<% else %>
+		<tr class="commit-keywords">
+			<td>
+				<%= hidden_field_tag "uom_id[]",  ""  %>
+			</td>
+			<td>
+				<%= text_field_tag("name[]",  "", :maxlength => 255, :required => true,  :style => "width:150px;") %>
+			</td>
+			<td>
+				<%= text_field_tag("description[]",  "", :maxlength => 255, :required => true, :style => "width:150px;") %>
+			</td>
+
+			<td class="buttons">
+				<%= link_to(sprite_icon('del', l(:button_delete)), '#',
+							:class => 'delete-commit-keywords icon-only icon-del',
+							:title => l(:button_delete)) %>
+			</td>
+		</tr>
+	<% end %>
+    <tr>
+      <td></td>
+	  <td></td>
+      <td></td>
+      <td class="buttons">
+        <%= link_to(sprite_icon('add',l(:button_add)), '#',
+                    :class => 'add-commit-keywords icon-only icon-add',
+                    :title => l(:button_add)) %>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<%= hidden_field_tag "actual_ids",  actualIds  %>
+<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
+<p><%= submit_tag l(:button_save) %></p>
+<% end %>
+
+<%= javascript_tag do %>
+$('#commit-keywords').on('click', 'a.delete-commit-keywords', function(e){
+  e.preventDefault();
+  if ($('#commit-keywords tbody tr.commit-keywords').length > 1) {
+    $(this).parents('#commit-keywords tr').remove();
+  } else {
+    $('#commit-keywords tbody tr.commit-keywords').find('input, select').val('');
+  }
+});
+$('#commit-keywords').on('click', 'a.add-commit-keywords', function(e){
+  e.preventDefault();
+	let row = $('#commit-keywords tr.commit-keywords:last');
+	row = row.clone();
+	row.find('input, select').val('');
+	const dd = row.find('select');
+	dd.each(function(){
+		const parent = $(this).parent('div');
+		if(parent.length > 0){
+			$(parent).before(this);
+			$(parent).remove();
+			$(this).dropdown();
+		}
+	});
+	$('tr.commit-keywords:last').after(row);
+});
+<% end %>

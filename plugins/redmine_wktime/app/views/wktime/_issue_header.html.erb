@@ -1,0 +1,45 @@
+<% if params[:enter_issue_id].blank? && controller.showProjectDD %>
+	<th align="left" width="150px" ><%= l(:field_project) %></th>
+<% else %>
+	<th align="left"></th>
+<% end %>
+<th align="left" width="250px"><%= controller.getLblIssue %></th>
+<% if controller.showActivityDD %>
+<th align="left" width="75px" ><%= l(:field_activity) %></th>
+<% else %>
+	<th align="left"></th>
+<% end %>
+<% if showBilling && controller.showSpentFor %>
+	<th align="left" width="150px" ><%= controller.getLblSpentFor %></th>
+<% end %>
+
+<% if !Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].blank? &&
+	Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].to_i == 1 %>
+	<th align="left"><%= l(:field_comments)%></th>
+<% end %>
+
+<!-- For currency -->
+<% if !controller.getUnitLabel.blank? %>
+	<th align="left" ><%= controller.getUnitLabel %></th>
+<% end %>
+<%= render :partial => controller.getCFInRowHeaderHTML %>
+<% startOfWeek = getStartOfWeek %>
+<% if @renderer.showSpentOnInRow %>
+	<th align="left"><%= l(:field_spent_on)%></th>
+	<th class="lbl-txt-align" ><%= l(:field_hours) %></th>
+<% else %>
+	<% for i in 0.. @renderer.getDaysPerSheet - 1%>
+	<!-- Martin Dube contribution: 'start of the week' configuration -->
+	<th align="center" width="6px"><%= l('date.abbr_day_names')[(i+(startOfWeek))%7] %><br /><%= I18n.localize(@startday+i, :format=>:short) unless @startday.nil? %></th>
+	<% end %>
+	
+<% end %>
+<th  align="center">&emsp;&emsp;&emsp;</th>
+
+<% if controller.showWorktimeHeader && @renderer.showWorkTimeHeader %>
+<!-- Start, End and Total -->	
+
+	<%= render :partial => 'worktime_header', :locals => {:str => 'start', :isEditable => true, :value => '0:00'}%>
+	<%= render :partial => 'worktime_header', :locals => {:str => 'end', :isEditable => true, :value => '0:00'}%>
+	<%= render :partial => 'worktime_header', :locals => {:str => 'total', :isEditable => false, :value => '0:00'}%>
+<% end %>

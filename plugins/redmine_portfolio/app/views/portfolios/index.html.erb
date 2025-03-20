@@ -1,0 +1,27 @@
+<h2><%= 'Portfolios' %></h2>
+&nbsp;<%= form_tag(portfolios_path(@portfolio_status, nil), :method => :get, :id => 'query_form') do %>
+  <%= render :partial => 'portfolios/query_form' %>
+<% end %>
+
+<div class="autoscroll">
+  <table class="list">
+    <thead>
+    <tr>
+      <th>Project</th>
+      <th>Public</th>
+      <th>Created</th>
+    </tr>
+    </thead>
+    <tbody>
+    <% if @portfolio_project.empty? %>
+      <tr>
+        <td colspan="3" class="text-center">No Any Company</td>
+      </tr>
+    <% else %>
+      <%= render partial: 'portfolios/listing', collection: @portfolio_project, as: :portfolio_project %>
+    <% end %>
+    </tbody>
+  </table>
+</div>
+<span class="pagination"><%= pagination_links_full @portfolio_project_pages, @portfolio_project_count %></span>
+

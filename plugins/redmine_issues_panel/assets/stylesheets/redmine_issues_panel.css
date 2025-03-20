@@ -1,0 +1,273 @@
+table.issues-panel {
+  border: 1px solid #e4e4e4;
+  width: 100%;
+  margin-bottom: 4px;
+  border-radius: 3px;
+  border-spacing: 0;
+  overflow: hidden;
+  table-layout: fixed;
+}
+
+table.issues-panel th {
+  background-color:#EEEEEE;
+  padding: 4px;
+  white-space:nowrap;
+  font-weight:bold;
+}
+
+table.issues-panel th span.badge-count {
+  top: -1px;
+}
+
+table.issues-panel th a.add-issue-card {
+  display: inline;
+  position: relative;
+  top: -2px;
+}
+
+table.issues-panel td {
+  vertical-align: top;
+  background-color: #fffffb;
+  border: 1px solid #e4e4e4;
+  text-align: left;
+}
+
+#issue_panel_issue_description {
+  background-color: #ffffee;
+  padding: 3px;
+  position: absolute;
+  z-index: 1000;
+  width: 380px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  box-shadow: 0 0 1px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.2);
+  display: none;
+}
+
+#issue_panel_issue_description .issue {
+  background-color: #ffffee;
+  border: none;
+  padding: 3px;
+  margin: 3px;
+}
+
+#issue_panel_issue_description .issue .subject {
+  font-size: 0.8em;
+  font-weight: bold;
+}
+
+#issue_panel_issue_description .issue .subject a {
+  padding-left: 0px;
+  margin-left: 0px;
+}
+
+#issue_panel_issue_description .issue .description .wiki * {
+  font-size: 0.9em;
+  font-weight: normal;
+  border: none;
+  margin: 2px;
+  font-style: normal;
+}
+
+#issue_panel_issue_description .issue .description .wiki blockquote {
+  padding-left: 0px;
+}
+
+#issue_panel_issue_description .issue .description .wiki ol,
+#issue_panel_issue_description .issue .description .wiki ul {
+  padding-inline-start: 18px;
+  font-size: 1em;
+}
+
+#issue_panel_issue_description .issue .description .wiki pre,
+#issue_panel_issue_description .issue .description .wiki pre code {
+  padding: 0px;
+  margin: 0px;
+  background: transparent;
+  white-space: pre-wrap;
+  hyphens: auto;
+}
+
+#issue_panel_issue_description .issue .description .wiki pre code span {
+  margin: 0px;
+  color: inherit;
+  background: transparent;
+}
+
+#issue_panel_issue_description .issue .description .wiki table,
+#issue_panel_issue_description .issue .description .wiki tr,
+#issue_panel_issue_description .issue .description .wiki td {
+  padding: 2px;
+  font-size: 1em;
+}
+
+#issue_panel_issue_description .issue .description .wiki p img,
+#issue_panel_issue_description .issue .description .wiki p img+br {
+  display: none;
+}
+
+.issue-card-receiver {
+  border:1px dashed #fff;
+  padding: 15px 4px 2px 4px!important;
+}
+
+.ui-droppable-hover {
+  border:2px dashed #aaa!important;
+}
+
+.issue-cards {
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  -webkit-box-align: start;
+  -ms-flex-align: start;
+  align-items: flex-start;
+}
+
+.issue-card {
+  border: 1px solid #ddd;
+  color: #505050;
+  border-radius: 3px;
+  background-color: #ffffdd;
+  word-break: break-all;
+  vertical-align: top;
+}
+
+.issue-card-1-1 {
+  margin: 2px;
+  width: 98%;
+}
+
+.issue-card-1-2 {
+  margin: 2px 1px;
+  flex: 1 1 calc(100% / 2.2);
+}
+
+.issue-card-1-3 {
+  margin: 2px 1px;
+  flex: 1 1 calc(100% / 3.3);
+}
+
+.issue-cards>.add-issue-card {
+  margin: 2px;
+  width: 98%;
+  text-align: center;
+}
+
+.issue-card>.contextual {
+  opacity: 0.001;
+  transition: opacity 0.2s;
+}
+
+.issue-card:hover>.contextual {
+  opacity: 1;
+}
+
+.issue-card[class~=ui-sortable-helper] {
+  transform: rotate(10deg);
+}
+
+.issue-card .overdue .due_date .value {
+  color: #c22;
+}
+
+.issue-card div.priority-lowest {
+  box-shadow: 4px 0px 0px 0px #81D4FA inset;
+}
+.issue-card div.priority-high3 {
+  box-shadow: 4px 0px 0px 0px #EF9A9A inset;
+}
+.issue-card div.priority-high2 {
+  box-shadow: 4px 0px 0px 0px #E53935 inset;
+}
+.issue-card div.priority-highest {
+  box-shadow: 4px 0px 0px 0px #E53935 inset;
+}
+
+.issue-card .card-content {
+  padding: 8px;
+  text-align: left;
+  font-size: 0.9em;
+  display: block;
+}
+.issue-card .card-content a {
+  background-color: transparent;
+  border: none;
+}
+.issue-card .closed {
+  background-color: #fffff0;
+}
+.card-content .caption {
+  float: left;
+  padding-right: 2px;
+}
+.card-content .header .js-contextmenu {
+  float: right;
+}
+.card-content .footer {
+  padding-top: 6px;
+}
+.card-content .footer a {
+  float: right;
+}
+.card-content .footer a.show-issue-description {
+  float: left;
+}
+th > .issue-cards > .add-issue-card {
+  background-color: transparent;
+}
+td > .issue-cards > .add-issue-card {
+  background-color: #fff;
+}
+td > .issue-cards > .add-issue-card:hover {
+  cursor: pointer;
+}
+
+.issue-card-form {
+  padding: 5px;
+}
+.issue-card-form > #all_attributes > .splitcontentleft {
+  flex: none;
+}
+.issue-card-form > #all_attributes > .splitcontentleft > p {
+  padding-left: 100px;
+}
+.issue-card-form > #all_attributes > .splitcontentleft > p#issue_is_private_wrap {
+  padding: 0px;
+}
+.issue-card-form > #all_attributes > .splitcontentleft p > label {
+  margin-left: -100px;
+  margin-right: 10px;
+  width: 100px;
+}
+.issue-card-form > #all_attributes > .splitcontentleft > p > select#issue_project_id,select#issue_tracker_id,select#issue_category_id,select#issue_fixed_version_id {
+  max-width: 85%;
+}
+.issue-card-form > #all_attributes > .splitcontentleft a {
+  display: inline-block;
+}
+
+body.controller-issues_panel .ui-widget-overlay+.ui-dialog+.ui-widget-overlay,
+body.controller-issues_panel .ui-widget-overlay+.ui-widget-overlay {
+  display: none;
+}
+
+#ajax-indicator {
+  z-index: 120;
+}
+
+@media screen and (max-width: 899px) {
+  .issue-card-form > #all_attributes > .splitcontentleft > p {
+    padding-left: 0px;
+  }
+  .issue-card-form > #all_attributes > .splitcontentleft > p > label {
+    margin-left: 0px;
+    width: 100%;
+  }
+  .issue-card-form > div#all_attributes > div.splitcontentleft > p > select#issue_project_id,select#issue_tracker_id {
+    width: 100%;
+    max-width: 100%;
+  }
+}

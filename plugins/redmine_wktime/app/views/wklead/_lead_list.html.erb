@@ -1,0 +1,67 @@
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<div class="autoscroll">
+	<table class="list time-entries">
+		<thead>
+			<tr>
+				<% if controller.is_referral %>
+					<% activityHeaders = getReferralHeaders(entries) || [] %>
+					<%= sort_header_tag('location_name', :caption => l(:field_location), class: "lbl-txt-align") %>
+					<%= sort_header_tag('lead_name', :caption => l(:field_name), class: "lbl-txt-align") %>
+					<%= sort_header_tag('status', :caption => l(:field_status), class: "lbl-txt-align") %>
+					<th class="lbl-txt-align"><%= l(:label_degree) %></th>
+					<%= sort_header_tag('pass_out', :caption => l(:label_pass_out), class: "lbl-txt-align") %>
+					<%= sort_header_tag('referred_by', :caption => l(:label_referred_by), class: "lbl-txt-align") %>
+					<% activityHeaders.map do |col| %>
+						<th class="lbl-txt-align"><%= col %></th>
+					<% end %>
+				<% else %>
+					<%= sort_header_tag('lead_name', :caption => l(:field_name), class: "lbl-txt-align") %>
+					<%= sort_header_tag('status', :caption => l(:field_status), class: "lbl-txt-align") %>
+					<%= sort_header_tag('acc_name', :caption => l(:label_account_name), class: "lbl-txt-align") %>
+					<%= sort_header_tag('location_name', :caption => l(:field_location), class: "lbl-txt-align") %>
+					<th class="lbl-txt-align"><%= l(:label_work_phone) %></th>
+					<th class="lbl-txt-align"><%= l(:field_mail) %></th>
+					<%= sort_header_tag('updated_by_user_id', :caption => l(:field_status_modified_by), class: "lbl-txt-align") %>
+					<%= sort_header_tag('updated_at', :caption => l(:field_updated_on), class: "lbl-txt-align") %>
+				<% end %>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			<% entries.each do |entry| %>
+				<tr>
+					<% if controller.is_referral %>
+						<td class="lbl-txt-align"><%=h entry.contact.location_id.blank? ? "" : entry.contact&.location&.name %></td>
+						<td class="lbl-txt-align"><%=h entry.contact&.name %></td>
+						<td class="lbl-txt-align colorcode-bg-setup col-status-<%= entry.status %>"><%=h getLeadStatusHash[entry.status] %></td>
+						<td class="lbl-txt-align"><%= entry&.candidate&.degree %></td>
+						<td class="lbl-txt-align"><%= entry&.candidate&.pass_out %></td>
+						<td class="lbl-txt-align"><%= entry&.referred&.name %></td>
+						<% (activityHeaders).map do |col| %>
+							<td>
+								<%= ((entry.activities&.order(updated_at: :desc) || []).map{|act| (act.interview_type&.name&.titleize || act.name.titleize) == col ? act.rating : ""})&.reject(&:blank?)&.first %>
+							</td>
+						<% end %>
+					<% else %>
+						<td class="lbl-txt-align"><%=h entry.contact&.name %></td>
+						<td class="lbl-txt-align colorcode-bg-setup col-status-<%= entry.status %>"><%=h getLeadStatusHash[entry.status] %></td>
+						<td class="lbl-txt-align"><%=h entry.account.blank? ? "" : entry.account.name %></td>
+						<td class="lbl-txt-align"><%=h entry.contact.location_id.blank? ? "" : entry.contact&.location&.name %></td>
+						<td class="lbl-txt-align"><%=h entry.contact.address.blank? ? "" : entry.contact&.address&.work_phone %></td>
+						<td class="lbl-txt-align"><%=h entry.contact.address.blank? ? "" : entry.contact&.address&.email %></td>
+						<td class="lbl-txt-align"><%=h entry.created_by_user.name(:firstname_lastname) %></td>
+						<td class="lbl-txt-align"><%=h entry.updated_at.localtime.strftime("%Y-%m-%d %H:%M:%S") %></td>
+					<% end %>
+					<td align="center">
+						<%= link_to sprite_icon('edit'), {:action => 'edit', :lead_id => entry.id,:address_id => entry&.address&.id, id: entry.id}, :title => l(:button_edit) %>
+						<% if controller.deletePermission %>
+							&nbsp;&nbsp;<%= link_to sprite_icon('del'), {:action => 'destroy', :lead_id => entry.id, :tab => controller.controller_name, id: entry.id},
+								:data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
+						<% end %>
+					</td>
+				</tr>
+			<% end %>
+		</tbody>
+	</table>
+</div>
+<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>

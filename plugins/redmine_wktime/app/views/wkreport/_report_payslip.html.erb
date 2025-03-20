@@ -1,0 +1,148 @@
+<%
+	require_relative './report_payslip'
+	userId = (session[controller_name].try(:[], :user_id).blank? || (session[controller_name].try(:[], :user_id)).to_i < 1) ? User.current.id : session[controller_name].try(:[], :user_id)
+	from = session[controller_name].try(:[], :from)
+	to = session[controller_name].try(:[], :to)
+	groupId = session[controller_name].try(:[], :group_id)
+	projId = session[controller_name].try(:[], :project_id)
+	payslip_report = Object.new.extend(ReportPayslip) 
+	payslip = payslip_report.calcReportData(userId, groupId, projId, from, to)
+	userName = payslip[:userDetail].firstname + ' ' + payslip[:userDetail].lastname if payslip[:userDetail].present?
+	componentlength = payslip[:salData]['e']&.length || 0 > payslip[:salData]['d']&.length || 0 ? payslip[:salData]['e']&.length || 0 : payslip[:salData]['d']&.length || 0
+%>
+<style type="text/css">
+	table { 
+		table-layout: fixed; 
+		word-wrap: break-word; text-align: center; 
+		margin-top:5px; margin-bottom:10px; padding-left: 10px; color:#333333;
+		font-family:Verdana, sans-serif; font-size:12px; 
+	}  
+	.txt-align {
+		text-align: left; !important;
+	}
+</style>
+<% unless payslip[:userDetail].blank? %>
+<div id="time-rpt-dlg" style="overflow-x:auto;">
+	<center><b>Payslip</b></center>
+		<div>
+		<div style="float:left">
+			<table>
+				<tr>
+					<td class="txt-align" width="100px"><b><%= getMainLocation %></b></td>
+				</tr>
+				<tr>
+					<td class="txt-align" width="200px"><%= getAddress %>
+				</tr>  
+			</table>
+		</div>
+		<div style="float:right">
+			<table>
+				<tr>
+					<td>
+						<% attachment = WkLocation.getMainLogo() %>
+						<% if attachment.present? %>
+							<%= image_tag(download_location_attachment_path(attachment, attachment.filename), class: 'filecontent image') %>
+						<% end %>
+					</td>
+				</tr>
+			</table>
+		</div>
+		</div>
+		<div style="clear:both;"></div>
+		<table border="1" style="border-collapse:collapse;" cellspacing="0", frame="box"  >
+			<tr>
+				<td bgcolor="#e6e6e6" class="txt-align" width="52px"><b><%= l(:label_pay_period) %></b></td>
+				<td class="txt-align" width="50px"> <%= (payslip[:userDetail].salary_date-1)&.strftime("%B %Y") %></td>
+				<td bgcolor="#e6e6e6" class="txt-align" width="150px"><b><%= l(:label_emp_name) %></b></td>
+				<td class="txt-align" width="360px">  <%= userName %></td>
+				<td bgcolor="#e6e6e6" class="txt-align" width="100px"><b><%= l(:label_employee_id) %></b></td>
+				<td class="txt-align" width="180px"> <%= payslip[:userDetail].id1 %></td>
+			</tr>
+			<tr>
+				<td bgcolor="#e6e6e6" class="txt-align" width="100px"><b>Join Date</b></td>
+				<td class="txt-align" width="100px"><%= payslip[:userDetail].join_date %></td>
+			</tr>  
+		</table> 
+ 
+	<table border="1" style="border-collapse:collapse;" cellspacing="0", frame="box">
+	<thead bgcolor="#e6e6e6">
+		<tr  class="time-entry <%= cycle("odd", "even") %>">
+			<th colspan="3"  width="500px" ><%= l(:label_earning)%></th>
+			<th colspan="3"  width="500px"><%= l(:label_deduction)%></th>
+		</tr>
+		<tr>
+			<td> </td>
+			<td><%= l(:label_monthly) %></td>
+			<td><%= l(:label_ytd) %></td>
+			<td> </td>
+			<td><%= l(:label_monthly) %></td>
+			<td><%= l(:label_ytd) %></td>
+		</tr> 
+	</thead>
+	<tbody>
+		<%for i in 0..componentlength-1 %>
+			<tr>
+				<% if payslip[:salData]['e'] && payslip[:salData]['e'].length > i%>
+					<td class="txt-align"><b><%= payslip[:salData]['e'][i][0]  %></b></td>
+					<td align="right"><%= payslip[:salData]['e'][i][2]%> <%= "%.2f" % payslip[:salData]['e'][i][1] %></td>
+					<td align="right"><%= payslip[:salData]['e'][i][2]%> <%= "%.2f" % payslip[:salData]['e'][i][3] %></td>
+				<%end%> 
+    
+				<% if payslip[:salData]['d'] && payslip[:salData]['d'].length > i%>
+					<td class="txt-align"><b><%= payslip[:salData]['d'][i][0]  %></b></td>
+					<td align="right"><%= payslip[:salData]['d'][i][2]%> <%= "%.2f" % payslip[:salData]['d'][i][1] %></td>
+					<td align="right"><%= payslip[:salData]['d'][i][2]%> <%= "%.2f" % payslip[:salData]['d'][i][3] %></td>
+				<%else%>
+					<td></td>
+					<td></td>
+					<td></td>
+				<%end%> 
+			</tr>
+		<%end%>
+		<tr> 
+			<td class="txt-align"><b><%=l(:label_total_earning)%></b></td>
+			<td align="right"><%= payslip[:total][:cur] %> <%= "%.2f" % payslip[:total][:e] %></td>
+			<td align="right"><%= payslip[:total][:cur] %> <%= "%.2f" % payslip[:total][:ye] %></td>
+			<td class="txt-align"><b><%=l(:label_total_deduction)%></b></td>
+			<td align="right"><%= payslip[:total][:cur] %> <%= "%.2f" % payslip[:total][:d] %></td>
+			<td align="right"><%= payslip[:total][:cur] %> <%= "%.2f" % payslip[:total][:yd] %></td>
+		</tr>
+  
+		<tr> 
+			<td class="txt-align"><b><%=l(:label_net_earning)%></b></td>
+			<td align="right"><%= payslip[:total][:cur] %><%= "%.2f" % payslip[:total][:net] %></td>
+			<td align="right"><%= payslip[:total][:cur] %><%= "%.2f" % payslip[:total][:netYTD] %></td>
+		</tr> 
+	</tbody>  
+	</table>
+
+	<% if payslip[:salData]['r'] %>
+		<table border="1" style="border-collapse:collapse;" cellspacing="0", frame="box"  > 
+			<thead bgcolor="#e6e6e6">
+				<tr  class="time-entry <%= cycle("odd", "even") %>">
+					<th colspan="3"  width="500px"><%= l(:label_reimbursements)%></th>
+				</tr>
+				<tr>
+					<td> </td>
+					<td><%= l(:label_monthly) %></td>
+					<td><%= l(:label_ytd) %></td>
+				</tr>  
+			</thead>
+			<tr>
+				<td class="txt-align"><b><%= payslip[:salData]['r'][0][0]  %></b></td>
+				<td align="right"><%= payslip[:salData]['r'][0][2]%> <%= "%.2f" % payslip[:salData]['r'][0][1] %></td>
+				<td align="right"><%= payslip[:salData]['r'][0][2]%> <%= "%.2f" % payslip[:salData]['r'][0][3] %></td>
+			</tr>
+			<tr>
+				<td class="txt-align"><b><%=l(:label_net_earning) + ' + '+ l(:label_reimbursements) %></b></td>
+				<td align="right"><%= payslip[:total][:cur] %><%= "%.2f" % payslip[:total][:reimburse] %></td>
+				<td align="right"><%= payslip[:total][:cur] %><%= "%.2f" % payslip[:total][:reimburseYTD] %></td>
+			</tr>
+		</table>
+	<%end%>
+	<label><%= l(:label_ytd_description, start:  payslip[:start], end: payslip[:end] )%></label>
+<% else %>
+	<label><b><%= l(:label_no_data) %></b></label>
+<% end %>
+
+
